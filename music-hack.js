@@ -68,12 +68,15 @@ function playSong(url) {
     clearPlayer();
     var video =
 	$('<audio src="' + url + '" id="audio_with_controls" width="320" controls autobuffer>');
-    video.appendTo($('#player'));
+    video.appendTo($('#info'));
     
 }
 
 function addSongToCurrentPlaylist(name,url) {
     var playlist_song = $('<li>' + name + '</li>');
+    playlist_song.click(function() {
+	playSong(url);
+    });
     playlist_song.appendTo($('#playlist'));
 }
 
@@ -117,9 +120,9 @@ function createAlbum(name,id) {
 }
 
 function getAlbums(container,artist_id) {
-    ampacheRequest(LOGIN_TOKEN,'artist_songs',function(data){
-	$(data).find('song').each(function() {
-	    var name = parseXMLTag(this,'title');
+    ampacheRequest(LOGIN_TOKEN,'artist_albums',function(data){
+	$(data).find('album').each(function() {
+	    var name = parseXMLTag(this,'name');
 	    var id = $(this).attr('id');
 	    container.append(createAlbum(name,id));
 	});
