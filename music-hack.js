@@ -9,9 +9,13 @@ var PING_ID = null;
 var PING_INTERVAL = 5000;
 
 function parseXMLTag(xmldata,tag) {
-    var xml_auth = $(xmldata).find(tag).get(0);
-    if(xml_auth == undefined) return null;
-    return xml_auth.textContent;
+    try {
+	var xml_auth = xmldata.getElementsByTagName(tag)[0];
+	if(xml_auth == undefined) return null;
+	return xml_auth.textContent;
+    } catch (error) {
+	return null;
+    }
 }
 
 // Returns null if no auth token
@@ -72,13 +76,32 @@ function addArtist(name,id) {
 }
 
 function getArtists() {
-    ARTISTS = {};
     ampacheRequest(LOGIN_TOKEN,'artists',function(data){
 	$(data).find('artist').each(function() {
-	    var artist = this.getElementsByTagName("name")[0].textContent;
+	    var artist = parseXMLTag(this,'name');
 	    var id = $(this).attr('id');
-	    console.log(artist);
 	    addArtist(artist,id);
+	});
+    });
+}
+
+function addVideo(name,id) {
+    var open = false;
+    if(name == '' || name == undefined) name = 'untitled';
+    var video_button = $('<li>' + name + '</li>');
+    video_button.click(function() {
+	alert(name);
+    });
+    video_button.appendTo($('#videos'));
+}
+
+function getVideos() {
+    ampacheRequest(LOGIN_TOKEN,'videos',function(data){
+	$(data).find('video').each(function() {
+	    var video = parseXMLTag(this,'title');
+	    var id = $(this).attr('id');
+	    console.log(video);
+	    addVideo(video,id);
 	});
     });
 }
@@ -91,6 +114,7 @@ function loginSuccess(user,token) {
 	clearInterval(PING_ID);
     PING_ID = setInterval(ping,PING_INTERVAL);
     getArtists();
+    getVideos();
 }
 
 function loginFail(text) {

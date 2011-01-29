@@ -21,6 +21,16 @@ function parseXMLTag(xmldata,tag) {
     return xml_auth.textContent;
 }
 
+function myParseXMLTag(xmldata,tag) {
+    try {
+	var xml_auth = xmldata.getElementsByTagName(tag)[0];
+	if(xml_auth == undefined) return null;
+	return xml_auth.textContent;
+    } catch (error) {
+	return null;
+    }
+}
+
 // Returns null if no auth token
 function parseAuthToken(xmldata) {
     return parseXMLTag(xmldata,'auth');
