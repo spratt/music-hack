@@ -62,17 +62,82 @@ function ping() {
     ampacheRequest(LOGIN_TOKEN,'ping');
 }
 
+function playSong(url) {
+    clearPlayer();
+    var video =
+	$('<audio src="' + url + '" id="audio_with_controls" width="320" controls autobuffer>');
+    video.appendTo($('#player'));
+    
+}
+
+function createSong(name,url) {
+    var song_button = $('<br /><span class="song">' + name + '</li>');
+    song_button.click(function() {
+	playSong(url);
+    });
+    return song_button;
+}
+
+function getSongs(container,album_id) {
+    ampacheRequest(LOGIN_TOKEN,'album_songs',function(data){
+	$(data).find('song').each(function() {
+	    var name = parseXMLTag(this,'title');
+	    var url = parseXMLTag(this,'url');
+	    container.append(createSong(name,url));
+	});
+    },{'filter':album_id});
+}
+
+function createAlbum(name,id) {
+    var open = false;
+    var album_li = $('<li class="album">');
+    var album_button = $('<span>' + name + '</span>');
+    var song_container = $('<span>');
+    album_button.click(function() {
+	if(open) {
+	    // close it
+	    song_container.children().remove();
+	    open = false;
+	} else {
+	    // open it
+	    getSongs(song_container,id);
+	    open = true;
+	}
+    });
+    album_button.appendTo(album_li);
+    song_container.appendTo(album_li);
+    return album_li;
+}
+
+function getAlbums(container,artist_id) {
+    ampacheRequest(LOGIN_TOKEN,'artist_songs',function(data){
+	$(data).find('song').each(function() {
+	    var name = parseXMLTag(this,'title');
+	    var id = $(this).attr('id');
+	    container.append(createAlbum(name,id));
+	});
+    },{'filter':artist_id});
+}
+
 function addArtist(name,id) {
     var open = false;
-    var artist_button = $('<li>' + name + '</li>');
+    var artist_li = $('<li class="artist">');
+    var artist_button = $('<span>' + name + '</span>');
+    var album_container = $('<span>');
     artist_button.click(function() {
 	if(open) {
 	    // close it
+	    album_container.children().remove();
+	    open = false;
 	} else {
 	    // open it
+	    getAlbums(album_container,id);
+	    open = true;
 	}
     });
-    artist_button.appendTo($('#songs'));
+    artist_button.appendTo(artist_li);
+    album_container.appendTo(artist_li);
+    artist_li.appendTo($('#songs'));
 }
 
 function getArtists() {

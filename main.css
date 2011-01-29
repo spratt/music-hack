@@ -4,3 +4,9 @@ div {
 li {
     cursor: pointer;
 }
+.album {
+    margin-left: 5px;
+}
+.song {
+    margin-left: 10px;
+}
