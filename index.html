@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <title>Music Hack</title>
+    <!-- Libraries -->
+    <script src="jssha256.js"></script>
+    <script src="jquery-1.4.4.min.js"></script>
+    <!-- music-hack -->
+    <script src="music-hack.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+  </head>
+  <body>
+    <div id="login">
+      <form action="#" id="login_form">
+        URL
+        <input type="text" id="url_text" size="100"
+               value="http://localhost/~spratt/ampache/server/xml.server.php" /><br />
+        User<input type="text" id="user_text" />
+        Password<input type="password" id="pass_text" />
+        <input type="submit" value="Login" />
+      </form>
+      <div id="login_output"></div>
+    </div>
+    <div id="ui">
+      <div id="player"></div>
+      <div id="info"></div>
+      <div id="library_container">
+        Audio
+        <ul id="songs"></ul>
+        Video
+        <ul id="videos"></ul>
+      </div>
+      <div id="playlist_container">
+        <ul id="playlist"></ul>
+      </div>
+    </div>
+  </body>
+</html>
