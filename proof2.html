@@ -1,0 +1,130 @@
+<html>
+<head>
+<title>Music Hack Proof of Concept</title>
+<!-- http://point-at-infinity.org/jssha256/ -->
+<script src="jssha256.js"></script>
+<!-- http://jquery.com/ -->
+<script src="jquery-1.4.4.min.js"></script>
+</head>
+<body>
+<script>
+/*
+ * http://ampache.org/wiki/dev:xmlapi
+ */
+
+var AMPACHE_URL     = 'http://localhost/~spratt/ampache/server/xml.server.php';
+var AMPACHE_VERSION = '350001';
+
+function parseXMLTag(xmldata,tag) {
+    try {
+	var xml_auth = xmldata.getElementsByTagName(tag)[0];
+	if(xml_auth == undefined) return null;
+	return xml_auth.textContent;
+    } catch (error) {
+	return null;
+    }
+}
+
+function myParseXMLTag(xmldata,tag) {
+    try {
+	var xml_auth = xmldata.getElementsByTagName(tag)[0];
+	if(xml_auth == undefined) return null;
+	return xml_auth.textContent;
+    } catch (error) {
+	return null;
+    }
+}
+
+// Returns null if no auth token
+function parseAuthToken(xmldata) {
+    return parseXMLTag(xmldata,'auth');
+}
+
+// Returns null if login failed
+function getAuthToken(user,pass) {
+    var time = new Date().getTime();
+    
+    var key = SHA256_hash(pass);
+    var phrase = SHA256_hash(time + '' + key);
+
+    var authToken = null;
+
+    $.ajax({'url':      AMPACHE_URL,
+	    'async':    false,  // wait for reply
+	    'type':     'GET',
+	    'timeout':  2000,   // don't wait for more than 2 seconds
+	    'data':     {'action':    'handshake',
+			 'auth':      phrase,
+			 'timestamp': time,
+			 'version':   AMPACHE_VERSION,
+			 'user':      user},
+	    'dataType': 'xml',
+	    'success':  function(data, textStatus, XMLHttpRequest) {
+		authToken = parseAuthToken(data);
+	    },
+	    'error':    function(XMLHttpRequest, textStatus, errorThrown) {
+		authToken = null;
+	    }
+	   });
+
+    return authToken
+}
+
+function ampacheRequest(token,method,success_fn,send_data) {
+    var data = {
+	'auth':   token,
+	'action': method
+    };
+    if(send_data != undefined)
+	for(var i in send_data)
+	    data[i] = send_data[i];
+    return $.ajax({'url':  AMPACHE_URL,
+		   'data': data,
+		   'success': success_fn});
+}
+
+var user = 'spratt';
+var pass = 'carleton';
+
+// Test failure
+var token = getAuthToken(user,'');
+if(token == null) document.write('Login fail <br>');
+else document.write('Login success <br>');
+
+// Test success
+var token = getAuthToken(user,pass);
+if(token == null) document.write('Login fail <br>');
+else {
+    document.write('Login success <br>');
+    ampacheRequest(token,'ping',function(data) {
+	document.write('Ping success <br>');
+    });
+    ampacheRequest(token,'songs',function(data) {
+	document.write('Songs success <br>');
+	$(data).find('song').each(function() {
+	    var id = $(this).attr('id');
+	    var name = parseXMLTag(this,'title');
+	    var url = parseXMLTag(this,'url');
+	    $('body').append(name + ' (' + id + ')');
+	    $('body').append('<audio src="' + url + '" controls autobuffer /><br>');
+	});
+    },{
+	'filter': 'Foreplay Long Time'
+    });
+    ampacheRequest(token,'songs',function(data) {
+	document.write('Songs success <br>');
+	$(data).find('song').each(function() {
+	    var id = $(this).attr('id');
+	    var name = parseXMLTag(this,'title');
+	    var url = parseXMLTag(this,'url');
+	    $('body').append(name + ' (' + id + ')');
+	    $('body').append('<audio src="' + url + '" controls autobuffer /><br>');
+	});
+    },{
+	'filter': 'Smokin'
+    });
+}
+
+</script>
+</body>
+</html>

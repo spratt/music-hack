@@ -85,12 +85,23 @@ function getArtists() {
     });
 }
 
-function addVideo(name,id) {
+function clearPlayer() {
+    $('#player').children().remove();
+}
+
+function playVideo(url) {
+    clearPlayer();
+    var video =
+	$('<video src="' + url + '" id="video_with_controls" width="320" controls autobuffer>');
+    video.appendTo($('#player'));
+}
+
+function addVideo(name,url) {
     var open = false;
     if(name == '' || name == undefined) name = 'untitled';
     var video_button = $('<li>' + name + '</li>');
     video_button.click(function() {
-	alert(name);
+	playVideo(url);
     });
     video_button.appendTo($('#videos'));
 }
@@ -99,9 +110,8 @@ function getVideos() {
     ampacheRequest(LOGIN_TOKEN,'videos',function(data){
 	$(data).find('video').each(function() {
 	    var video = parseXMLTag(this,'title');
-	    var id = $(this).attr('id');
-	    console.log(video);
-	    addVideo(video,id);
+	    var url = parseXMLTag(this,'url');
+	    addVideo(video,url);
 	});
     });
 }
