@@ -10,3 +10,16 @@ li {
 .song {
     margin-left: 10px;
 }
+#player, #info {
+    height: 75px;
+}
+#library_container, #playlist_container {
+    overflow: scroll;
+    height: 600px;
+}
+#library_container {
+    width: 400px;
+}
+#playlist_container {
+    width: 600px;
+}

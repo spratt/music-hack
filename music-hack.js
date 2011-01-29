@@ -8,6 +8,8 @@ var LOGIN_TOKEN = null;
 var PING_ID = null;
 var PING_INTERVAL = 5000;
 
+var PLAYLIST = [];
+
 function parseXMLTag(xmldata,tag) {
     try {
 	var xml_auth = xmldata.getElementsByTagName(tag)[0];
@@ -70,10 +72,15 @@ function playSong(url) {
     
 }
 
+function addSongToCurrentPlaylist(name,url) {
+    var playlist_song = $('<li>' + name + '</li>');
+    playlist_song.appendTo($('#playlist'));
+}
+
 function createSong(name,url) {
     var song_button = $('<br /><span class="song">' + name + '</li>');
     song_button.click(function() {
-	playSong(url);
+	addSongToCurrentPlaylist(name,url);
     });
     return song_button;
 }
